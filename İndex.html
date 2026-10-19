@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benimle Çıkar Mısın? ❤️</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #feada6 100%);
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Yüzen Kalpler Arka Planı */
+    .heart-bg {
+      position: absolute;
+      top: -10px;
+      color: rgba(255, 255, 255, 0.6);
+      animation: float 6s linear infinite;
+      user-select: none;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Ana Kart (Glassmorphism) */
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(219, 112, 147, 0.2);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      z-index: 10;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .gif-container img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 4px solid #ff6b81;
+      box-shadow: 0 8px 15px rgba(255, 107, 129, 0.2);
+    }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.8rem;
+      color: #d63031;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #555;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    /* Buton Alanı */
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      min-height: 60px;
+    }
+
+    .btn {
+      padding: 12px 32px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-yes {
+      background: linear-gradient(45deg, #ff4757, #ff6b81);
+      color: white;
+      box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.08);
+      box-shadow: 0 8px 20px rgba(255, 71, 87, 0.6);
+    }
+
+    .btn-no {
+      background-color: #f1f2f6;
+      color: #2f3542;
+      position: absolute;
+      transition: all 0.2s ease;
+    }
+
+    /* Kutlama Ekranı */
+    .celebration {
+      display: none;
+    }
+
+    .celebration h1 {
+      font-size: 3.2rem;
+      color: #ff4757;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Card Kutusu -->
+  <div class="card" id="mainCard">
+    <div class="gif-container">
+      <img id="cardImg" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z2ZnRva3Bsd2RtcnZ3ZTFwOHRwMnF4MzA1Y2EycTM2YmFicXF6diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LbfT5FLOW7EE/giphy.gif" alt="Cute Gif">
+    </div>
+    
+    <div id="proposalContent">
+      <h1 id="title">Benimle Olur Musun? ❤️</h1>
+      <p id="message">Hayatımın her anını seninle paylaşmak, her güne senin tebessümünle başlamak istiyorum. Benimle bu güzel yolculuğa var mısın?</p>
+      
+      <div class="btn-group">
+        <button class="btn btn-yes" id="yesBtn" onclick="acceptProposal()">Evet! 🥰</button>
+        <button class="btn btn-no" id="noBtn">Hayır 🙈</button>
+      </div>
+    </div>
+
+    <!-- Evet'e tıklandıktan sonra görünecek içerik -->
+    <div class="celebration" id="celebrationContent">
+      <h1>Seni Çok Seviyorum! ❤️🎉</h1>
+      <p>Hayatımın en güzel kararı oldun! Birlikte yazacağımız harika bir sürü anı bizi bekliyor ✨💖</p>
+    </div>
+  </div>
+
+  <script>
+    // Arka planda uçuşan kalpler oluşturma
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart-bg');
+      heart.innerHTML = '❤️';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = Math.random() * 3 + 3 + 's';
+      heart.style.fontSize = Math.random() * 15 + 10 + 'px';
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 6000);
+    }
+    setInterval(createHeart, 300);
+
+    // Hayır butonunun kaçma mekanizması
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+
+    // İlk konumlandırma
+    noBtn.style.left = '60%';
+
+    function moveNoButton() {
+      const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40);
+      const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40);
+      
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+    }
+
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    // Evet butonuna tıklandığında gerçekleşecek olaylar
+    function acceptProposal() {
+      document.getElementById('proposalContent').style.display = 'none';
+      document.getElementById('celebrationContent').style.display = 'block';
+      document.getElementById('cardImg').src = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Y2YmxmcWZidm4yeXVvN2x4OHlhMzByY3RxczFvOGM2cWlydnRreCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26hpUreP8v277028o/giphy.gif";
+
+      // Konfeti Yağmuru
+      var duration = 5 * 1000;
+      var animationEnd = Date.now() + duration;
+      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      var interval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        var particleCount = 50 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+      }, 250);
+    }
+  </script>
+</body>
+</html>
